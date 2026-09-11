@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquaculture Admin Panel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #d1d5db; }
+        .header h1 { color: #0f172a; margin: 0; font-size: 26px; }
+        .last-sync { font-size: 13px; color: #059669; margin-top: 5px; font-weight: bold; }
+        
+        .system-mode {
+            background: #ffffff; padding: 12px 20px; border-radius: 8px; width: max-content;
+            margin: 0 auto 25px auto; border: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            display: flex; align-items: center; gap: 15px;
+        }
+        .system-mode h3 { margin: 0; font-size: 15px; color: #374151; }
+        
+        .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #059669; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card {
+            background: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;
+            text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .card i { font-size: 22px; color: #2563eb; margin-bottom: 10px; }
+        .card h4 { margin: 0 0 8px 0; font-size: 13px; color: #6b7280; text-transform: uppercase; }
+        .card .value { font-size: 26px; font-weight: bold; color: #111827; }
+        .card .unit { font-size: 13px; color: #6b7280; font-weight: normal; }
+
+        .controls-wrapper { background: #ffffff; padding: 25px; border-radius: 8px; border: 1px solid #e5e7eb; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .controls-wrapper h3 { margin-top: 0; color: #1f2937; font-size: 16px; margin-bottom: 20px; }
+        .control-btns { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        
+        .btn {
+            padding: 10px 20px; font-size: 14px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; color: white;
+            display: flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-off { background-color: #ef4444; }
+        .btn-on { background-color: #10b981; }
+        .btn:disabled { background-color: #f3f4f6; color: #9ca3af; border: 1px solid #e5e7eb; cursor: not-allowed; }
+        
+        .overlay-msg { display: none; color: #dc2626; font-size: 13px; margin-top: 15px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Aquaculture Control Center</h1>
+            <div class="last-sync"><i class="fa-solid fa-clock"></i> Last Update: <span id="sync-time">--:--:--</span></div>
+        </div>
+
+        <div class="system-mode">
+            <h3>System Mode: <span id="mode-text" style="color: #2563eb; font-weight:bold;">AUTO</span></h3>
+            <label class="switch">
+                <input type="checkbox" id="auto-mode-toggle" onchange="toggleAutoMode()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <i class="fa-solid fa-vial"></i>
+                <h4>Water pH</h4>
+                <div class="value" id="val-ph">--</div>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-wind"></i>
+                <h4>Dissolved Oxygen</h4>
+                <div class="value" id="val-do">-- <span class="unit">mg/L</span></div>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-water"></i>
+                <h4>Turbidity</h4>
+                <div class="value" id="val-turb">-- <span class="unit">NTU</span></div>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-temperature-half"></i>
+                <h4>Temperature</h4>
+                <div class="value" id="val-temp">-- <span class="unit">°C</span></div>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-wave-square"></i>
+                <h4>Acoustic Status</h4>
+                <div class="value" id="val-sound" style="font-size: 20px; margin-top: 6px;">--</div>
+            </div>
+        </div>
+
+        <div class="controls-wrapper">
+            <h3>Manual Device Control</h3>
+            <div class="control-btns">
+                <button id="feeder-btn" class="btn btn-off" onclick="toggleDevice('feeder')">
+                    <i class="fa-solid fa-power-off"></i> Feeder Motor
+                </button>
+                <button id="aerator-btn" class="btn btn-off" onclick="toggleDevice('aerator')">
+                    <i class="fa-solid fa-power-off"></i> Aerator Fan
+                </button>
+            </div>
+            <div id="auto-warning" class="overlay-msg">
+                <i class="fa-solid fa-circle-info"></i> Manual controls are disabled while Auto Mode is active.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let autoMode = true;
+        let feederState = false;
+        let aeratorState = false;
+
+        async function fetchSensorData() {
+            try {
+                const res = await fetch('/api/data');
+                const data = await res.json();
+
+                document.getElementById('val-ph').innerText = data.ph;
+                document.getElementById('val-do').innerHTML = data.do + ' <span class="unit">mg/L</span>';
+                document.getElementById('val-turb').innerHTML = data.turbidity + ' <span class="unit">NTU</span>';
+                document.getElementById('val-temp').innerHTML = data.temp + ' <span class="unit">°C</span>';
+                document.getElementById('val-sound').innerText = data.sound_level;
+                document.getElementById('sync-time').innerText = data.last_update;
+
+                if (autoMode !== data.auto_mode) {
+                    autoMode = data.auto_mode;
+                    document.getElementById('auto-mode-toggle').checked = autoMode;
+                }
+                
+                feederState = data.feeder_active;
+                aeratorState = data.aerator_active;
+                
+                updateUI();
+            } catch (err) {
+                console.error("Fetch error:", err);
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('mode-text').innerText = autoMode ? "AUTO" : "MANUAL";
+            document.getElementById('mode-text').style.color = autoMode ? "#059669" : "#ea580c";
+
+            const fBtn = document.getElementById('feeder-btn');
+            const aBtn = document.getElementById('aerator-btn');
+            const warning = document.getElementById('auto-warning');
+
+            fBtn.innerHTML = `<i class="fa-solid fa-power-off"></i> Feeder: ${feederState ? "ON" : "OFF"}`;
+            fBtn.className = "btn " + (feederState ? "btn-on" : "btn-off");
+
+            aBtn.innerHTML = `<i class="fa-solid fa-power-off"></i> Aerator: ${aeratorState ? "ON" : "OFF"}`;
+            aBtn.className = "btn " + (aeratorState ? "btn-on" : "btn-off");
+
+            if (autoMode) {
+                fBtn.disabled = true;
+                aBtn.disabled = true;
+                warning.style.display = "block";
+            } else {
+                fBtn.disabled = false;
+                aBtn.disabled = false;
+                warning.style.display = "none";
+            }
+        }
+
+        async function toggleAutoMode() {
+            const toggleBtn = document.getElementById('auto-mode-toggle');
+            autoMode = toggleBtn.checked;
+            
+            await fetch('/api/control', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "auto_mode", state: autoMode })
+            });
+            updateUI();
+        }
+
+        async function toggleDevice(device) {
+            if (autoMode) return;
+
+            let newState = device === 'feeder' ? !feederState : !aeratorState;
+            await fetch('/api/control', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: device, state: newState })
+            });
+            fetchSensorData();
+        }
+
+        document.getElementById('auto-mode-toggle').checked = autoMode;
+        setInterval(fetchSensorData, 1500);
+        fetchSensorData();
+    </script>
+</body>
+</html>
