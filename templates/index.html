@@ -3,22 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AquaSmart | Enterprise IoT</title>
+    <title>AquaSmart | Premium Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-base: #0f172a;
-            --surface: #1e293b;
-            --surface-hover: #334155;
-            --primary: #38bdf8;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
+            --bg-base: #f0f4f8;
+            --surface: #ffffff;
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --success: #059669;
+            --success-light: #ecfdf5;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
@@ -28,110 +33,151 @@
             color: var(--text-main);
             padding: 24px;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .dashboard-container { max-width: 1400px; margin: 0 auto; }
 
-        /* Top Navigation Header */
+        /* Animations */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes dataUpdate {
+            0% { color: var(--primary); transform: scale(1.05); }
+            100% { color: var(--text-main); transform: scale(1); }
+        }
+
+        .data-changed { animation: dataUpdate 0.5s ease; }
+
+        /* Header */
         .header {
             display: flex; justify-content: space-between; align-items: center;
-            background: var(--surface); padding: 16px 32px;
-            border-radius: 16px; border: 1px solid var(--border);
-            margin-bottom: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: var(--surface); padding: 18px 32px;
+            border-radius: 20px; border: 1px solid var(--border);
+            margin-bottom: 32px; box-shadow: var(--shadow-sm);
+            animation: slideUpFade 0.6s ease-out;
         }
-        .brand { display: flex; align-items: center; gap: 12px; }
-        .brand i { font-size: 28px; color: var(--primary); }
-        .brand h1 { font-size: 24px; font-weight: 600; letter-spacing: 0.5px; }
-        .brand span { color: var(--text-muted); font-weight: 400; }
+        .brand { display: flex; align-items: center; gap: 14px; }
+        .brand-icon { 
+            background: var(--primary-light); color: var(--primary);
+            width: 45px; height: 45px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; animation: float 3s ease-in-out infinite;
+        }
+        .brand h1 { font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
         
         .sys-info { display: flex; align-items: center; gap: 16px; }
         .badge {
-            background: rgba(56, 189, 248, 0.1); color: var(--primary);
-            padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 500;
-            border: 1px solid rgba(56, 189, 248, 0.2); display: flex; align-items: center; gap: 8px;
+            background: var(--surface); color: var(--text-muted);
+            padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500;
+            border: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
         }
         .pulse {
-            width: 8px; height: 8px; background: var(--success); border-radius: 50%;
-            box-shadow: 0 0 10px var(--success); animation: pulse-anim 2s infinite;
+            width: 10px; height: 10px; background: var(--success); border-radius: 50%;
+            box-shadow: 0 0 10px rgba(5, 150, 105, 0.4);
+            animation: pulse-anim 2s infinite;
         }
-        @keyframes pulse-anim { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.5); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes pulse-anim { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* Sensor Grid */
+        /* Grid */
         .grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 24px; margin-bottom: 40px;
         }
 
+        /* Cards */
         .metric-card {
-            background: var(--surface); padding: 24px; border-radius: 16px;
-            border: 1px solid var(--border); position: relative; overflow: hidden;
-            transition: all 0.3s ease;
+            background: var(--surface); padding: 28px 24px; border-radius: 24px;
+            border: 1px solid var(--border); box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0; animation: slideUpFade 0.6s ease-out forwards;
         }
-        .metric-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         
-        .metric-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .metric-title { font-size: 16px; color: var(--text-muted); font-weight: 500; }
-        .metric-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        
-        /* Icon Colors */
-        .icon-ph { background: rgba(56, 189, 248, 0.1); color: var(--primary); }
-        .icon-do { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .icon-turb { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .icon-temp { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .icon-gas { background: rgba(148, 163, 184, 0.1); color: var(--text-main); }
-        .icon-feed { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+        /* Staggered load animation */
+        .metric-card:nth-child(1) { animation-delay: 0.1s; }
+        .metric-card:nth-child(2) { animation-delay: 0.2s; }
+        .metric-card:nth-child(3) { animation-delay: 0.3s; }
+        .metric-card:nth-child(4) { animation-delay: 0.4s; }
+        .metric-card:nth-child(5) { animation-delay: 0.5s; }
+        .metric-card:nth-child(6) { animation-delay: 0.6s; }
 
-        .metric-value { font-size: 42px; font-weight: 700; color: var(--text-main); line-height: 1; margin-bottom: 8px; }
-        .metric-unit { font-size: 16px; color: var(--text-muted); font-weight: 400; }
+        .metric-card:hover { transform: translateY(-6px); box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.1); border-color: var(--primary); }
         
-        .progress-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 15px; overflow: hidden; }
-        .progress-bar { height: 100%; background: #8b5cf6; width: 0%; transition: width 1s ease; }
-
-        /* Hardware Controls Section */
-        .section-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        
-        .control-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px;
+        .metric-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+        .metric-title { font-size: 16px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-icon { 
+            width: 48px; height: 48px; border-radius: 14px; 
+            display: flex; align-items: center; justify-content: center; font-size: 22px; 
         }
+        
+        .metric-card:hover .metric-icon { animation: float 2s ease-in-out infinite; }
+
+        .icon-ph { background: var(--primary-light); color: var(--primary); }
+        .icon-do { background: var(--success-light); color: var(--success); }
+        .icon-turb { background: var(--warning-light); color: var(--warning); }
+        .icon-temp { background: var(--danger-light); color: var(--danger); }
+        .icon-gas { background: #f3f4f6; color: #4b5563; }
+        .icon-feed { background: #f3e8ff; color: #9333ea; }
+
+        .metric-value { font-size: 46px; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 12px; }
+        .metric-unit { font-size: 18px; color: var(--text-muted); font-weight: 500; }
+        
+        .progress-bg { width: 100%; height: 8px; background: #f1f5f9; border-radius: 10px; margin-top: 20px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #9333ea, #c084fc); width: 0%; transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 10px; }
+
+        /* Auto Mode Switch */
+        .controls-wrapper { animation: slideUpFade 0.6s ease-out forwards; animation-delay: 0.7s; opacity: 0; }
+        
+        .auto-box {
+            display: flex; align-items: center; gap: 16px; background: var(--surface);
+            padding: 16px 24px; border-radius: 16px; border: 1px solid var(--border);
+            margin-bottom: 24px; width: fit-content; box-shadow: var(--shadow-sm);
+        }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* Hardware Actuators */
+        .control-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px; }
 
         .hw-card {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
-            padding: 24px; display: flex; align-items: center; gap: 24px;
-        }
-        
-        .hw-illustration {
-            width: 100px; height: 100px; background: rgba(255,255,255,0.03); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            border: 2px dashed var(--border); font-size: 40px; color: var(--text-muted);
+            background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
+            padding: 28px; display: flex; align-items: center; gap: 28px; box-shadow: var(--shadow-sm);
             transition: all 0.3s;
         }
-        .hw-card:hover .hw-illustration { border-color: var(--primary); color: var(--primary); background: rgba(56, 189, 248, 0.05); }
+        .hw-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); }
+        
+        .hw-illustration {
+            width: 90px; height: 90px; background: var(--bg-base); border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px; color: var(--primary); transition: all 0.4s;
+        }
+        .hw-card:hover .hw-illustration { transform: scale(1.1) rotate(5deg); background: var(--primary-light); }
 
         .hw-info { flex: 1; }
-        .hw-info h3 { font-size: 18px; margin-bottom: 6px; }
-        .hw-info p { font-size: 14px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.4; }
+        .hw-info h3 { font-size: 20px; margin-bottom: 8px; font-weight: 700; }
+        .hw-info p { font-size: 15px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.5; }
 
         .action-btn {
-            background: var(--surface-hover); color: var(--text-main); border: 1px solid var(--border);
-            padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
-            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;
+            background: #f1f5f9; color: var(--text-main); border: none;
+            padding: 12px 24px; border-radius: 12px; font-size: 15px; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: all 0.2s;
         }
-        .action-btn.active { background: rgba(16, 185, 129, 0.15); color: var(--success); border-color: var(--success); }
-        .action-btn:hover:not(:disabled) { filter: brightness(1.2); }
+        .action-btn.active { background: var(--success-light); color: var(--success); box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15); }
+        .action-btn:hover:not(:disabled) { background: #e2e8f0; }
+        .action-btn.active:hover:not(:disabled) { background: #d1fae5; }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        /* Auto Switch */
-        .auto-box {
-            display: flex; align-items: center; gap: 16px; background: rgba(16, 185, 129, 0.05);
-            padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.2);
-            margin-bottom: 24px; width: fit-content;
-        }
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--surface-hover); transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { transform: translateX(20px); }
 
     </style>
 </head>
@@ -141,52 +187,41 @@
         <!-- Header -->
         <header class="header">
             <div class="brand">
-                <i class="fa-solid fa-water"></i>
-                <h1>AquaSmart <span>| Enterprise</span></h1>
+                <div class="brand-icon"><i class="fa-solid fa-droplet"></i></div>
+                <h1>AquaSmart</h1>
             </div>
             <div class="sys-info">
-                <div class="badge"><i class="fa-solid fa-network-wired"></i> System Online</div>
                 <div class="badge"><div class="pulse"></div> Live Sync</div>
             </div>
         </header>
 
-        <!-- Master Control -->
-        <div class="auto-box">
-            <h3 style="font-size: 16px; color: var(--text-main);">AI Automation Protocol</h3>
-            <label class="switch">
-                <input type="checkbox" id="auto-mode" checked onchange="toggleAuto()">
-                <span class="slider"></span>
-            </label>
-            <span id="mode-label" style="color: var(--success); font-weight: 500;">Enabled (Sensors controlling hardware)</span>
-        </div>
-
-        <!-- Sensors Data Grid -->
+        <!-- Data Grid -->
         <div class="grid">
             <div class="metric-card">
                 <div class="metric-header">
-                    <span class="metric-title">Water pH Level</span>
+                    <span class="metric-title">Water pH</span>
                     <div class="metric-icon icon-ph"><i class="fa-solid fa-vial"></i></div>
                 </div>
-                <div class="metric-value" id="val-ph">--</div>
-                <div style="color: var(--primary); font-size: 14px;"><i class="fa-solid fa-arrow-trend-up"></i> Stable reading</div>
+                <div class="metric-value"><span id="val-ph">--</span></div>
+                <div style="color: var(--success); font-size: 15px; font-weight: 500;"><i class="fa-solid fa-check-circle"></i> Optimal Level</div>
             </div>
 
             <div class="metric-card">
                 <div class="metric-header">
-                    <span class="metric-title">Dissolved Oxygen (DO)</span>
+                    <span class="metric-title">Dissolved Oxygen</span>
                     <div class="metric-icon icon-do"><i class="fa-solid fa-wind"></i></div>
                 </div>
                 <div class="metric-value"><span id="val-do">--</span> <span class="metric-unit">mg/L</span></div>
-                <div style="color: var(--text-muted); font-size: 14px;">Estimated via Soft-Sensing AI</div>
+                <div style="color: var(--text-muted); font-size: 15px;"><i class="fa-solid fa-microchip"></i> AI Predicted</div>
             </div>
 
             <div class="metric-card">
                 <div class="metric-header">
-                    <span class="metric-title">Water Turbidity</span>
+                    <span class="metric-title">Turbidity</span>
                     <div class="metric-icon icon-turb"><i class="fa-solid fa-water-arrow-down"></i></div>
                 </div>
                 <div class="metric-value"><span id="val-turb">--</span> <span class="metric-unit">NTU</span></div>
-                <div style="color: var(--success); font-size: 14px;"><i class="fa-solid fa-check-circle"></i> Clear visibility</div>
+                <div style="color: var(--text-muted); font-size: 15px;">Water Clarity Index</div>
             </div>
 
             <div class="metric-card">
@@ -195,21 +230,21 @@
                     <div class="metric-icon icon-temp"><i class="fa-solid fa-temperature-half"></i></div>
                 </div>
                 <div class="metric-value"><span id="val-temp">--</span> <span class="metric-unit">°C</span></div>
-                <div style="color: var(--text-muted); font-size: 14px;">DS18B20 Probe</div>
+                <div style="color: var(--text-muted); font-size: 15px;">DS18B20 Probe</div>
             </div>
 
             <div class="metric-card">
                 <div class="metric-header">
-                    <span class="metric-title">Toxic Gases (Ammonia)</span>
+                    <span class="metric-title">Toxic Gases</span>
                     <div class="metric-icon icon-gas"><i class="fa-solid fa-smog"></i></div>
                 </div>
-                <div class="metric-value" id="val-gas" style="font-size: 32px; margin-top: 10px;">Safe</div>
-                <div style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">MQ Series Sensor</div>
+                <div class="metric-value" id="val-gas" style="font-size: 36px; padding-top: 8px;">Safe</div>
+                <div style="color: var(--text-muted); font-size: 15px; margin-top: 8px;">Ammonia levels</div>
             </div>
 
             <div class="metric-card">
                 <div class="metric-header">
-                    <span class="metric-title">Food Hopper Level</span>
+                    <span class="metric-title">Food Hopper</span>
                     <div class="metric-icon icon-feed"><i class="fa-solid fa-box-open"></i></div>
                 </div>
                 <div class="metric-value"><span id="val-feed">--</span><span class="metric-unit">%</span></div>
@@ -218,33 +253,39 @@
         </div>
 
         <!-- Hardware Controls -->
-        <h2 class="section-title"><i class="fa-solid fa-microchip"></i> Hardware Actuators</h2>
-        <div class="control-grid">
-            
-            <div class="hw-card">
-                <!-- Vector Icon instead of Image -->
-                <div class="hw-illustration"><i class="fa-solid fa-fan"></i></div>
-                <div class="hw-info">
-                    <h3>Water Aerator Pump</h3>
-                    <p>Submersible pump mechanism to infuse oxygen into the water when levels drop critically.</p>
-                    <button class="action-btn" id="btn-aerator" onclick="toggleDevice('aerator')">
-                        <i class="fa-solid fa-power-off"></i> <span>TURN ON</span>
-                    </button>
-                </div>
+        <div class="controls-wrapper">
+            <div class="auto-box">
+                <h3 style="font-size: 16px; color: var(--text-main); font-weight: 600;">Automation Protocol</h3>
+                <label class="switch">
+                    <input type="checkbox" id="auto-mode" checked onchange="toggleAuto()">
+                    <span class="slider"></span>
+                </label>
+                <span id="mode-label" style="color: var(--success); font-weight: 600;">Enabled</span>
             </div>
 
-            <div class="hw-card">
-                <!-- Vector Icon instead of Image -->
-                <div class="hw-illustration"><i class="fa-solid fa-gears"></i></div>
-                <div class="hw-info">
-                    <h3>Automatic Feeder Motor</h3>
-                    <p>DC Motor dispensing mechanism controlled by HC-SR04 level sensing and timed schedules.</p>
-                    <button class="action-btn" id="btn-feeder" onclick="toggleDevice('feeder')">
-                        <i class="fa-solid fa-power-off"></i> <span>DISPENSE</span>
-                    </button>
+            <div class="control-grid">
+                <div class="hw-card">
+                    <div class="hw-illustration"><i class="fa-solid fa-fan"></i></div>
+                    <div class="hw-info">
+                        <h3>Aerator Pump</h3>
+                        <p>Controls water oxygenation based on DO drops.</p>
+                        <button class="action-btn" id="btn-aerator" onclick="toggleDevice('aerator')">
+                            <i class="fa-solid fa-power-off"></i> <span>Turn On</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="hw-card">
+                    <div class="hw-illustration"><i class="fa-solid fa-gears"></i></div>
+                    <div class="hw-info">
+                        <h3>Auto Feeder</h3>
+                        <p>Dispenses food automatically on schedule.</p>
+                        <button class="action-btn" id="btn-feeder" onclick="toggleDevice('feeder')">
+                            <i class="fa-solid fa-power-off"></i> <span>Dispense</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -253,54 +294,61 @@
         let aeratorOn = false;
         let feederOn = false;
 
-        // Auto Mode Toggle Function
         function toggleAuto() {
             isAuto = document.getElementById('auto-mode').checked;
             const label = document.getElementById('mode-label');
             const btns = document.querySelectorAll('.action-btn');
             
             if(isAuto) {
-                label.innerText = "Enabled (AI monitoring active)";
+                label.innerText = "Enabled (AI Active)";
                 label.style.color = "var(--success)";
                 btns.forEach(btn => { btn.disabled = true; });
             } else {
-                label.innerText = "Manual Override (User controlled)";
+                label.innerText = "Manual Override";
                 label.style.color = "var(--warning)";
                 btns.forEach(btn => { btn.disabled = false; });
             }
         }
 
-        // Hardware Button Toggle Function
         function toggleDevice(device) {
-            if(isAuto) return; // Protected by disabled attribute, but double check
-
+            if(isAuto) return;
             const btn = document.getElementById(`btn-${device}`);
             const span = btn.querySelector('span');
 
             if(device === 'aerator') {
                 aeratorOn = !aeratorOn;
                 btn.className = `action-btn ${aeratorOn ? 'active' : ''}`;
-                span.innerText = aeratorOn ? "RUNNING" : "TURN ON";
+                span.innerText = aeratorOn ? "Running" : "Turn On";
             } else {
                 feederOn = !feederOn;
                 btn.className = `action-btn ${feederOn ? 'active' : ''}`;
-                span.innerText = feederOn ? "DISPENSING..." : "DISPENSE";
+                span.innerText = feederOn ? "Dispensing..." : "Dispense";
             }
         }
 
-        // Simulated Data Fetch (Replace this block with your actual fetch API later if needed)
+        function updateValueWithAnimation(elementId, newValue) {
+            const el = document.getElementById(elementId);
+            if(el.innerText !== newValue) {
+                el.innerText = newValue;
+                // Add animation class
+                el.parentElement.classList.remove('data-changed');
+                void el.parentElement.offsetWidth; // Trigger reflow
+                el.parentElement.classList.add('data-changed');
+            }
+        }
+
+        // Demo Data Fetch
         setInterval(() => {
-            document.getElementById('val-ph').innerText = (7.1 + Math.random() * 0.2).toFixed(1);
-            document.getElementById('val-do').innerText = (6.2 + Math.random() * 0.5).toFixed(1);
-            document.getElementById('val-temp').innerText = (28.2 + Math.random() * 0.5).toFixed(1);
-            document.getElementById('val-turb').innerText = Math.floor(10 + Math.random() * 5);
+            updateValueWithAnimation('val-ph', (7.1 + Math.random() * 0.2).toFixed(1));
+            updateValueWithAnimation('val-do', (6.2 + Math.random() * 0.5).toFixed(1));
+            updateValueWithAnimation('val-temp', (28.2 + Math.random() * 0.5).toFixed(1));
+            updateValueWithAnimation('val-turb', Math.floor(10 + Math.random() * 5));
             
             let feedLvl = Math.floor(80 + Math.random() * 10);
-            document.getElementById('val-feed').innerText = feedLvl;
+            updateValueWithAnimation('val-feed', feedLvl);
             document.getElementById('feed-bar').style.width = feedLvl + '%';
-        }, 2000);
+        }, 3000);
 
-        // Run once on load
         toggleAuto();
     </script>
 </body>
