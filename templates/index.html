@@ -3,270 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AquaSmart | Professional Monitoring</title>
+    <title>AquaSmart | Enterprise IoT</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #f4f7f9;
-            --card-bg: #ffffff;
-            --primary-blue: #0077b6;
-            --light-blue: #e0fbfc;
-            --text-dark: #2b2d42;
-            --text-gray: #8d99ae;
-            --success: #2a9d8f;
-            --warning: #f4a261;
-            --danger: #e76f51;
-            --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            --bg-base: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --primary: #38bdf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-dark);
-            padding: 20px;
-            overflow-x: hidden;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            padding: 24px;
+            min-height: 100vh;
         }
 
-        /* Animations */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pulseSoft {
-            0% { box-shadow: 0 0 0 0 rgba(42, 157, 143, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(42, 157, 143, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(42, 157, 143, 0); }
-        }
+        .dashboard-container { max-width: 1400px; margin: 0 auto; }
 
-        .container { max-width: 1250px; margin: 0 auto; }
-
-        /* Top Navigation */
-        .navbar {
+        /* Top Navigation Header */
+        .header {
             display: flex; justify-content: space-between; align-items: center;
-            background: var(--card-bg); padding: 15px 30px; border-radius: 16px;
-            box-shadow: var(--shadow); margin-bottom: 30px;
-            animation: fadeInUp 0.5s ease-out;
+            background: var(--surface); padding: 16px 32px;
+            border-radius: 16px; border: 1px solid var(--border);
+            margin-bottom: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        .logo-area { display: flex; align-items: center; gap: 12px; }
-        .logo-area i { font-size: 2rem; color: var(--primary-blue); }
-        .logo-area h1 { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand i { font-size: 28px; color: var(--primary); }
+        .brand h1 { font-size: 24px; font-weight: 600; letter-spacing: 0.5px; }
+        .brand span { color: var(--text-muted); font-weight: 400; }
         
-        .system-status { display: flex; gap: 20px; }
-        .status-badge {
-            background: var(--light-blue); color: var(--primary-blue);
-            padding: 8px 16px; border-radius: 50px; font-weight: 500; font-size: 0.9rem;
-            display: flex; align-items: center; gap: 8px;
+        .sys-info { display: flex; align-items: center; gap: 16px; }
+        .badge {
+            background: rgba(56, 189, 248, 0.1); color: var(--primary);
+            padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 500;
+            border: 1px solid rgba(56, 189, 248, 0.2); display: flex; align-items: center; gap: 8px;
         }
-        .live-dot {
-            width: 10px; height: 10px; background: var(--success);
-            border-radius: 50%; animation: pulseSoft 2s infinite;
+        .pulse {
+            width: 8px; height: 8px; background: var(--success); border-radius: 50%;
+            box-shadow: 0 0 10px var(--success); animation: pulse-anim 2s infinite;
+        }
+        @keyframes pulse-anim { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.5); } 100% { opacity: 1; transform: scale(1); } }
+
+        /* Sensor Grid */
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px; margin-bottom: 40px;
         }
 
-        /* Main Grid */
-        .dashboard-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px; margin-bottom: 30px;
+        .metric-card {
+            background: var(--surface); padding: 24px; border-radius: 16px;
+            border: 1px solid var(--border); position: relative; overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        
+        .metric-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .metric-title { font-size: 16px; color: var(--text-muted); font-weight: 500; }
+        .metric-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        
+        /* Icon Colors */
+        .icon-ph { background: rgba(56, 189, 248, 0.1); color: var(--primary); }
+        .icon-do { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .icon-turb { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .icon-temp { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .icon-gas { background: rgba(148, 163, 184, 0.1); color: var(--text-main); }
+        .icon-feed { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+        .metric-value { font-size: 42px; font-weight: 700; color: var(--text-main); line-height: 1; margin-bottom: 8px; }
+        .metric-unit { font-size: 16px; color: var(--text-muted); font-weight: 400; }
+        
+        .progress-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 15px; overflow: hidden; }
+        .progress-bar { height: 100%; background: #8b5cf6; width: 0%; transition: width 1s ease; }
+
+        /* Hardware Controls Section */
+        .section-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        .control-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px;
         }
 
-        /* Clean Cards */
-        .card {
-            background: var(--card-bg); border-radius: 16px; padding: 25px;
-            box-shadow: var(--shadow); transition: all 0.3s ease;
-            position: relative; overflow: hidden;
-            animation: fadeInUp 0.6s ease-out forwards; opacity: 0;
+        .hw-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+            padding: 24px; display: flex; align-items: center; gap: 24px;
         }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
         
-        /* Staggered animations for cards */
-        .card:nth-child(1) { animation-delay: 0.1s; }
-        .card:nth-child(2) { animation-delay: 0.2s; }
-        .card:nth-child(3) { animation-delay: 0.3s; }
-        .card:nth-child(4) { animation-delay: 0.4s; }
-        .card:nth-child(5) { animation-delay: 0.5s; }
+        .hw-illustration {
+            width: 100px; height: 100px; background: rgba(255,255,255,0.03); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px dashed var(--border); font-size: 40px; color: var(--text-muted);
+            transition: all 0.3s;
+        }
+        .hw-card:hover .hw-illustration { border-color: var(--primary); color: var(--primary); background: rgba(56, 189, 248, 0.05); }
 
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .card-header h3 { font-size: 1rem; color: var(--text-gray); font-weight: 500; }
-        .card-header i { font-size: 1.5rem; color: var(--primary-blue); opacity: 0.8; }
-        
-        .card-value { font-size: 2.2rem; font-weight: 700; color: var(--text-dark); }
-        .card-unit { font-size: 1rem; color: var(--text-gray); font-weight: 400; }
-        .status-text { font-size: 0.85rem; margin-top: 10px; font-weight: 500; }
+        .hw-info { flex: 1; }
+        .hw-info h3 { font-size: 18px; margin-bottom: 6px; }
+        .hw-info p { font-size: 14px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.4; }
 
-        /* Feed Level Bar */
-        .progress-bar-bg { width: 100%; height: 10px; background: #eee; border-radius: 10px; margin-top: 15px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--success); width: 80%; transition: width 1s ease; }
+        .action-btn {
+            background: var(--surface-hover); color: var(--text-main); border: 1px solid var(--border);
+            padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;
+        }
+        .action-btn.active { background: rgba(16, 185, 129, 0.15); color: var(--success); border-color: var(--success); }
+        .action-btn:hover:not(:disabled) { filter: brightness(1.2); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Hardware Control Section */
-        .control-section {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px;
-            animation: fadeInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.6s;
+        /* Auto Switch */
+        .auto-box {
+            display: flex; align-items: center; gap: 16px; background: rgba(16, 185, 129, 0.05);
+            padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.2);
+            margin-bottom: 24px; width: fit-content;
         }
-        
-        .hardware-card {
-            background: var(--card-bg); border-radius: 16px; padding: 25px; box-shadow: var(--shadow);
-            display: flex; gap: 20px; align-items: center;
-        }
-        
-        .hw-image {
-            width: 120px; height: 120px; border-radius: 12px; object-fit: cover;
-            border: 2px solid var(--light-blue);
-        }
-        
-        .hw-details { flex: 1; }
-        .hw-details h3 { font-size: 1.2rem; margin-bottom: 5px; }
-        .hw-details p { color: var(--text-gray); font-size: 0.9rem; margin-bottom: 15px; }
-
-        /* Switches */
-        .toggle-btn {
-            padding: 10px 24px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem;
-            cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;
-        }
-        .btn-active { background: var(--success); color: white; box-shadow: 0 4px 15px rgba(42, 157, 143, 0.3); }
-        .btn-inactive { background: #f1f5f9; color: var(--text-gray); }
-        .btn-active:hover { background: #21867a; }
-        .btn-inactive:hover { background: #e2e8f0; color: var(--text-dark); }
-        
-        /* Auto Mode Toggle */
-        .auto-mode-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc; transition: .4s; border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px;
-            background-color: white; transition: .4s; border-radius: 50%;
-        }
-        input:checked + .slider { background-color: var(--primary-blue); }
-        input:checked + .slider:before { transform: translateX(24px); }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--surface-hover); transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
 
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="dashboard-container">
         
         <!-- Header -->
-        <nav class="navbar">
-            <div class="logo-area">
+        <header class="header">
+            <div class="brand">
                 <i class="fa-solid fa-water"></i>
-                <h1>AquaSmart <span style="color:var(--text-gray); font-weight:400; font-size:1.2rem;">Core</span></h1>
+                <h1>AquaSmart <span>| Enterprise</span></h1>
             </div>
-            <div class="system-status">
-                <div class="status-badge"><i class="fa-solid fa-microchip"></i> ESP32 Connected</div>
-                <div class="status-badge"><div class="live-dot"></div> Live Sync</div>
+            <div class="sys-info">
+                <div class="badge"><i class="fa-solid fa-network-wired"></i> System Online</div>
+                <div class="badge"><div class="pulse"></div> Live Sync</div>
             </div>
-        </nav>
+        </header>
 
-        <!-- Auto Mode Master Switch -->
-        <div class="auto-mode-container">
-            <h3 style="font-size: 1.1rem; color: var(--text-dark);">System Mode:</h3>
+        <!-- Master Control -->
+        <div class="auto-box">
+            <h3 style="font-size: 16px; color: var(--text-main);">AI Automation Protocol</h3>
             <label class="switch">
                 <input type="checkbox" id="auto-mode" checked onchange="toggleAuto()">
                 <span class="slider"></span>
             </label>
-            <span id="mode-label" style="color: var(--primary-blue); font-weight: 600;">AI Auto Mode Enabled</span>
+            <span id="mode-label" style="color: var(--success); font-weight: 500;">Enabled (Sensors controlling hardware)</span>
         </div>
 
-        <!-- Sensor Data Grid -->
-        <div class="dashboard-grid">
-            <!-- pH Sensor -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Water pH Level</h3>
-                    <i class="fa-solid fa-vial"></i>
+        <!-- Sensors Data Grid -->
+        <div class="grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-title">Water pH Level</span>
+                    <div class="metric-icon icon-ph"><i class="fa-solid fa-vial"></i></div>
                 </div>
-                <div class="card-value" id="val-ph">7.2</div>
-                <div class="status-text" style="color: var(--success);"><i class="fa-solid fa-circle-check"></i> Optimal range</div>
+                <div class="metric-value" id="val-ph">--</div>
+                <div style="color: var(--primary); font-size: 14px;"><i class="fa-solid fa-arrow-trend-up"></i> Stable reading</div>
             </div>
 
-            <!-- Predicted DO -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Dissolved Oxygen (DO)</h3>
-                    <i class="fa-solid fa-wind"></i>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-title">Dissolved Oxygen (DO)</span>
+                    <div class="metric-icon icon-do"><i class="fa-solid fa-wind"></i></div>
                 </div>
-                <div class="card-value"><span id="val-do">6.5</span> <span class="card-unit">mg/L</span></div>
-                <div class="status-text" style="color: var(--text-gray);">AI Estimated via Temp/pH</div>
+                <div class="metric-value"><span id="val-do">--</span> <span class="metric-unit">mg/L</span></div>
+                <div style="color: var(--text-muted); font-size: 14px;">Estimated via Soft-Sensing AI</div>
             </div>
 
-            <!-- Turbidity -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Turbidity (Water Clarity)</h3>
-                    <i class="fa-solid fa-water-arrow-down"></i>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-title">Water Turbidity</span>
+                    <div class="metric-icon icon-turb"><i class="fa-solid fa-water-arrow-down"></i></div>
                 </div>
-                <div class="card-value"><span id="val-turb">12</span> <span class="card-unit">NTU</span></div>
-                <div class="status-text" style="color: var(--success);"><i class="fa-solid fa-circle-check"></i> Water is clear</div>
+                <div class="metric-value"><span id="val-turb">--</span> <span class="metric-unit">NTU</span></div>
+                <div style="color: var(--success); font-size: 14px;"><i class="fa-solid fa-check-circle"></i> Clear visibility</div>
             </div>
 
-            <!-- Temperature -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Water Temperature</h3>
-                    <i class="fa-solid fa-temperature-half"></i>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-title">Temperature</span>
+                    <div class="metric-icon icon-temp"><i class="fa-solid fa-temperature-half"></i></div>
                 </div>
-                <div class="card-value"><span id="val-temp">28.4</span> <span class="card-unit">°C</span></div>
-                <div class="status-text" style="color: var(--text-gray);">DS18B20 Sensor</div>
+                <div class="metric-value"><span id="val-temp">--</span> <span class="metric-unit">°C</span></div>
+                <div style="color: var(--text-muted); font-size: 14px;">DS18B20 Probe</div>
             </div>
 
-            <!-- Air Quality (Gas Sensor) -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Surface Air Quality</h3>
-                    <i class="fa-solid fa-smog"></i>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-title">Toxic Gases (Ammonia)</span>
+                    <div class="metric-icon icon-gas"><i class="fa-solid fa-smog"></i></div>
                 </div>
-                <div class="card-value"><span id="val-gas">Safe</span></div>
-                <div class="status-text" style="color: var(--text-gray);">MQ Series Sensor</div>
+                <div class="metric-value" id="val-gas" style="font-size: 32px; margin-top: 10px;">Safe</div>
+                <div style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">MQ Series Sensor</div>
             </div>
 
-            <!-- Feed Level (Ultrasonic) -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Food Hopper Level</h3>
-                    <i class="fa-solid fa-box-open"></i>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-title">Food Hopper Level</span>
+                    <div class="metric-icon icon-feed"><i class="fa-solid fa-box-open"></i></div>
                 </div>
-                <div class="card-value"><span id="val-feed">85</span><span class="card-unit">%</span></div>
-                <div class="progress-bar-bg">
-                    <div class="progress-fill" id="feed-bar"></div>
-                </div>
-                <div class="status-text" style="color: var(--text-gray);">HC-SR04 Ultrasonic</div>
+                <div class="metric-value"><span id="val-feed">--</span><span class="metric-unit">%</span></div>
+                <div class="progress-bg"><div class="progress-bar" id="feed-bar"></div></div>
             </div>
         </div>
 
-        <!-- Hardware Actuators -->
-        <h2 style="font-size: 1.2rem; margin-bottom: 15px; color: var(--text-dark);">Hardware Controls</h2>
-        <div class="control-section">
-            <!-- Aerator Pump -->
-            <div class="hardware-card">
-                <!-- Placeholder Image representing Water Pump -->
-                <img src="https://images.unsplash.com/photo-1584947936746-86d78b1cecb4?auto=format&fit=crop&q=80&w=200" alt="Aerator Pump" class="hw-image">
-                <div class="hw-details">
+        <!-- Hardware Controls -->
+        <h2 class="section-title"><i class="fa-solid fa-microchip"></i> Hardware Actuators</h2>
+        <div class="control-grid">
+            
+            <div class="hw-card">
+                <!-- Vector Icon instead of Image -->
+                <div class="hw-illustration"><i class="fa-solid fa-fan"></i></div>
+                <div class="hw-info">
                     <h3>Water Aerator Pump</h3>
-                    <p>Submersible pump to increase oxygen levels when DO drops.</p>
-                    <button class="toggle-btn btn-inactive" id="btn-aerator" onclick="toggleDevice('aerator')">
+                    <p>Submersible pump mechanism to infuse oxygen into the water when levels drop critically.</p>
+                    <button class="action-btn" id="btn-aerator" onclick="toggleDevice('aerator')">
                         <i class="fa-solid fa-power-off"></i> <span>TURN ON</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Auto Feeder -->
-            <div class="hardware-card">
-                <!-- Placeholder Image representing Motor/Feeder -->
-                <img src="https://images.unsplash.com/photo-1615802275468-967b5e683b53?auto=format&fit=crop&q=80&w=200" alt="Auto Feeder Motor" class="hw-image">
-                <div class="hw-details">
-                    <h3>Automatic Feeder</h3>
-                    <p>DC Motor mechanism dispensing food based on schedule.</p>
-                    <button class="toggle-btn btn-inactive" id="btn-feeder" onclick="toggleDevice('feeder')">
+            <div class="hw-card">
+                <!-- Vector Icon instead of Image -->
+                <div class="hw-illustration"><i class="fa-solid fa-gears"></i></div>
+                <div class="hw-info">
+                    <h3>Automatic Feeder Motor</h3>
+                    <p>DC Motor dispensing mechanism controlled by HC-SR04 level sensing and timed schedules.</p>
+                    <button class="action-btn" id="btn-feeder" onclick="toggleDevice('feeder')">
                         <i class="fa-solid fa-power-off"></i> <span>DISPENSE</span>
                     </button>
                 </div>
             </div>
-        </div>
 
+        </div>
     </div>
 
     <script>
@@ -274,58 +253,54 @@
         let aeratorOn = false;
         let feederOn = false;
 
-        // Auto Mode Toggle
+        // Auto Mode Toggle Function
         function toggleAuto() {
             isAuto = document.getElementById('auto-mode').checked;
             const label = document.getElementById('mode-label');
-            const btns = document.querySelectorAll('.toggle-btn');
+            const btns = document.querySelectorAll('.action-btn');
             
             if(isAuto) {
-                label.innerText = "AI Auto Mode Enabled";
-                label.style.color = "var(--primary-blue)";
-                btns.forEach(btn => { btn.style.opacity = "0.5"; btn.style.cursor = "not-allowed"; });
+                label.innerText = "Enabled (AI monitoring active)";
+                label.style.color = "var(--success)";
+                btns.forEach(btn => { btn.disabled = true; });
             } else {
-                label.innerText = "Manual Override";
+                label.innerText = "Manual Override (User controlled)";
                 label.style.color = "var(--warning)";
-                btns.forEach(btn => { btn.style.opacity = "1"; btn.style.cursor = "pointer"; });
+                btns.forEach(btn => { btn.disabled = false; });
             }
         }
 
-        // Hardware Toggle (Only works in Manual)
+        // Hardware Button Toggle Function
         function toggleDevice(device) {
-            if(isAuto) {
-                alert("Please disable Auto Mode to control hardware manually.");
-                return;
-            }
+            if(isAuto) return; // Protected by disabled attribute, but double check
 
             const btn = document.getElementById(`btn-${device}`);
             const span = btn.querySelector('span');
 
             if(device === 'aerator') {
                 aeratorOn = !aeratorOn;
-                btn.className = `toggle-btn ${aeratorOn ? 'btn-active' : 'btn-inactive'}`;
+                btn.className = `action-btn ${aeratorOn ? 'active' : ''}`;
                 span.innerText = aeratorOn ? "RUNNING" : "TURN ON";
             } else {
                 feederOn = !feederOn;
-                btn.className = `toggle-btn ${feederOn ? 'btn-active' : 'btn-inactive'}`;
+                btn.className = `action-btn ${feederOn ? 'active' : ''}`;
                 span.innerText = feederOn ? "DISPENSING..." : "DISPENSE";
             }
         }
 
-        // Simulate Live Data Updates for UI Demo
+        // Simulated Data Fetch (Replace this block with your actual fetch API later if needed)
         setInterval(() => {
-            // Randomly fluctuate values slightly to look alive
-            document.getElementById('val-ph').innerText = (7.0 + Math.random() * 0.5).toFixed(1);
-            document.getElementById('val-do').innerText = (6.0 + Math.random() * 1.0).toFixed(1);
-            document.getElementById('val-temp').innerText = (28.0 + Math.random() * 1.5).toFixed(1);
+            document.getElementById('val-ph').innerText = (7.1 + Math.random() * 0.2).toFixed(1);
+            document.getElementById('val-do').innerText = (6.2 + Math.random() * 0.5).toFixed(1);
+            document.getElementById('val-temp').innerText = (28.2 + Math.random() * 0.5).toFixed(1);
+            document.getElementById('val-turb').innerText = Math.floor(10 + Math.random() * 5);
             
-            // Random feed level change for demo
-            let feedLvl = Math.floor(75 + Math.random() * 15);
+            let feedLvl = Math.floor(80 + Math.random() * 10);
             document.getElementById('val-feed').innerText = feedLvl;
             document.getElementById('feed-bar').style.width = feedLvl + '%';
-        }, 3000);
+        }, 2000);
 
-        // Initialize state on load
+        // Run once on load
         toggleAuto();
     </script>
 </body>
